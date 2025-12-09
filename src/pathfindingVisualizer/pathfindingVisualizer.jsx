@@ -939,44 +939,13 @@ class PathfindingVisualizer extends Component {
       <div className="results-panel-left">
         <div className="results-header-fixed">
           <h3>Algorithm Results</h3>
-        </div>
-        
-        <div className="results-content-fixed">
-          <div className="result-item">
-            <span className="result-label">Algorithm:</span>
-            <span className="result-value">{algorithmName}</span>
-          </div>
-          <div className="result-item">
-            <span className="result-label">Path Length:</span>
-            <span className="result-value">{pathLength}</span>
-          </div>
-          <div className="result-item">
-            <span className="result-label">Visited Nodes:</span>
-            <span className="result-value">{visitedNodes}</span>
-          </div>
-          <div className="result-item">
-            <span className="result-label">Memory Usage:</span>
-            <span className="result-value">{memoryUsage}</span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Drag and resize handlers
-  handleDragStart = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  // Add fixed left panel for results
-  renderResultsOverlay = () => {
-    if (!this.state.showResults) return null;
-    
-    const { algorithmName, pathLength, visitedNodes, memoryUsage } = this.state.algorithmResults;
-    
-    return (
-      <div className="results-panel-left">
-        <div className="results-header-fixed">
-          <h3>Algorithm Results</h3>
+          <button 
+            className="close-results-btn"
+            onClick={this.hideAlgorithmResults}
+            title="Close results"
+          >
+            ×
+          </button>
         </div>
         
         <div className="results-content-fixed">
@@ -1104,30 +1073,18 @@ class PathfindingVisualizer extends Component {
 }
 
 function getInitialNum(width, height) {
-  let numColumns;
-  if (width > 1500) {
-    numColumns = Math.floor(width / 25);
-  } else if (width > 1250) {
-    numColumns = Math.floor(width / 22.5);
-  } else if (width > 1000) {
-    numColumns = Math.floor(width / 20);
-  } else if (width > 750) {
-    numColumns = Math.floor(width / 17.5);
-  } else if (width > 500) {
-    numColumns = Math.floor(width / 15);
-  } else if (width > 250) {
-    numColumns = Math.floor(width / 12.5);
-  } else if (width > 0) {
-    numColumns = Math.floor(width / 10);
-  }
+  // Adjust for left panel (320px) and right margin (20px)
+  const availableWidth = width - 360;
+  const availableHeight = height - 180;
   
-  // Limit to maximum 40 columns
+  // Fixed cell size for smaller, more uniform cells
+  const cellSize = 18;
+  
+  let numColumns = Math.floor(availableWidth / cellSize);
+  let numRows = Math.floor(availableHeight / cellSize);
+  
+  // Default to 40 columns and 20 rows (max limits)
   numColumns = Math.min(numColumns, 40);
-  
-  let cellWidth = Math.floor(width / numColumns);
-  let numRows = Math.floor(height / cellWidth);
-  
-  // Limit to maximum 20 rows
   numRows = Math.min(numRows, 20);
   
   return [numRows, numColumns];

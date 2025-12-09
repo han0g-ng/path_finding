@@ -44,26 +44,10 @@ class Node extends Component {
       ? "node node-visited"
       : "node";
 
-    // Use fixed cell size in custom mode, otherwise calculate based on screen
-    let cellWidth, cellHeight;
-    
-    if (gridSizeMode === 'custom') {
-      // Use fixed cell size for custom mode
-      cellWidth = cellSize;
-      cellHeight = cellSize;
-    } else {
-      // Original auto-calculation for auto mode
-      cellWidth = Math.floor((width - 15) / numColumns);
-      if (width > 1500) {
-        cellHeight = Math.floor((height - 70) / numRows);
-      } else if (width > 1000) {
-        cellHeight = Math.floor((height - 70) / numRows);
-      } else if (width > 500) {
-        cellHeight = Math.floor((height - 60) / numRows);
-      } else if (width > 0) {
-        cellHeight = Math.floor((height - 50) / numRows);
-      }
-    }
+    // Fixed cell size - no more dynamic calculation
+    const FIXED_CELL_SIZE = 27;
+    let cellWidth = FIXED_CELL_SIZE;
+    let cellHeight = FIXED_CELL_SIZE;
 
     // Simple logic: 
     // - Start node: always show (distance = 0)
