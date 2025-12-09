@@ -1,0 +1,222 @@
+.node {
+  width: var(--width);
+  height: var(--height);
+  border: 1px solid rgba(100, 180, 255, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: background-color 0.1s ease, transform 0.1s ease;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.node:hover {
+  background-color: rgba(100, 180, 255, 0.15);
+  border-color: rgba(100, 180, 255, 0.5);
+}
+
+.node-distance {
+  font-size: 10px;
+  font-weight: bold;
+  color: #ffffff;
+  pointer-events: none;
+  user-select: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  line-height: 1;
+}
+
+.node-start {
+  background: linear-gradient(135deg, #00d26a 0%, #00a854 100%);
+  animation: pulseStart 2s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(0, 210, 106, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+/* Distance styling for start node (green background) */
+.node-start .node-distance {
+  color: #ffffff;
+  background-color: transparent;
+  font-weight: 900;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+}
+
+.node-finish {
+  background: linear-gradient(135deg, #ff4757 0%, #ff3344 100%);
+  animation: pulseFinish 2s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(255, 71, 87, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+/* Distance styling for finish node (red background) */
+.node-finish .node-distance {
+  color: #ffffff;
+  background-color: transparent;
+  font-weight: 900;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+}
+
+.node-finish-reached {
+  animation-name: finishVisitedAnimation;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-out;
+  animation-direction: alternate;
+  animation-fill-mode: forwards;
+}
+
+.node-wall {
+  width: var(--width);
+  height: var(--height);
+  background: linear-gradient(135deg, #0c2233 0%, #1a3a52 100%);
+  border: 1px solid rgba(0, 50, 80, 0.8);
+  display: inline-block;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.node-wall-animated {
+  width: var(--width);
+  height: var(--height);
+  display: inline-block;
+  animation-name: wallAnimation;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+  animation-direction: alternate;
+  animation-fill-mode: forwards;
+}
+
+.node-visited {
+  animation-name: visitedAnimation;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-out;
+  animation-direction: alternate;
+  animation-fill-mode: forwards;
+}
+
+.node-shortest-path {
+  animation-name: shortestPathAnimation;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+  animation-direction: alternate;
+  animation-fill-mode: forwards;
+}
+
+.node-intersection {
+  background-color: blue !important;
+}
+
+/* Distance styling for intersection node (yellow background) */
+.node-intersection .node-distance {
+  color: #ffffff;
+  background-color: transparent;
+  font-weight: 900;
+}
+
+@keyframes wallAnimation {
+  0% {
+    transform: scale(0.4);
+    background: linear-gradient(135deg, #0c2233 0%, #1a3a52 100%);
+    border-radius: 30%;
+  }
+
+  50% {
+    transform: scale(0.6);
+    background: linear-gradient(135deg, #0c2233 0%, #1a3a52 100%);
+    border-radius: 20%;
+  }
+
+  75% {
+    transform: scale(0.8);
+    background: linear-gradient(135deg, #0c2233 0%, #1a3a52 100%);
+    border-radius: 10%;
+  }
+
+  100% {
+    transform: scale(1);
+    background: linear-gradient(135deg, #0c2233 0%, #1a3a52 100%);
+    border: 1px solid rgba(0, 50, 80, 0.8);
+  }
+}
+
+@keyframes visitedAnimation {
+  0% {
+    transform: scale(0.3);
+    background: radial-gradient(circle, #a855f7 0%, #7c3aed 100%);
+    border-radius: 100%;
+  }
+
+  50% {
+    transform: scale(0.5);
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.9) 0%, rgba(37, 99, 235, 0.8) 100%);
+    border-radius: 75%;
+  }
+
+  75% {
+    transform: scale(0.7);
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.85) 0%, rgba(14, 165, 233, 0.75) 100%);
+    border-radius: 50%;
+  }
+
+  100% {
+    transform: scale(1);
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.8) 0%, rgba(59, 130, 246, 0.7) 100%);
+  }
+}
+
+@keyframes shortestPathAnimation {
+  0% {
+    transform: scale(0.3);
+    background: radial-gradient(circle, #fbbf24 0%, #f59e0b 100%);
+    border-radius: 100%;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+  }
+
+  50% {
+    transform: scale(0.5);
+    background: radial-gradient(circle, #fbbf24 0%, #f59e0b 100%);
+    border-radius: 75%;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.9);
+  }
+
+  75% {
+    transform: scale(0.7);
+    background: radial-gradient(circle, #fbbf24 0%, #f59e0b 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 1);
+  }
+
+  100% {
+    transform: scale(1);
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.7);
+  }
+}
+
+@keyframes finishVisitedAnimation {
+  0% {
+    transform: scale(0.5);
+    background-color: red;
+    border-radius: 50%;
+  }
+
+  50% {
+    transform: scale(0.8);
+    background-color: red;
+    border-radius: 25%;
+  }
+
+  75% {
+    transform: scale(1.2);
+    background-color: red;
+    border-radius: 20%;
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: red;
+  }
+}
