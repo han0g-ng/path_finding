@@ -291,8 +291,19 @@ class PathfindingVisualizer extends Component {
   }
 
   animateShortestPath = (nodesInShortestPathOrder, visitedNodesInOrder, algorithmName = 'Algorithm', maxMemoryUsage = 0) => {
-    if (nodesInShortestPathOrder.length === 1)
+    // No path found - show results immediately
+    if (nodesInShortestPathOrder.length === 1) {
       this.setState({ visualizingAlgorithm: false });
+      
+      // Show results with "No path found" message
+      this.showAlgorithmResults(
+        algorithmName,
+        'No path found',
+        visitedNodesInOrder.length,
+        maxMemoryUsage
+      );
+      return;
+    }
 
     // Skip animation mode - show results immediately
     if (this.state.skipAnimation) {
@@ -982,7 +993,7 @@ class PathfindingVisualizer extends Component {
           </div>
           <div className="result-item">
             <span className="result-label">Path Length:</span>
-            <span className="result-value">{pathLength}</span>
+            <span className="result-value" style={typeof pathLength === 'string' ? {color: '#ff6b6b', fontWeight: 'bold'} : {}}>{pathLength}</span>
           </div>
           <div className="result-item">
             <span className="result-label">Visited Nodes:</span>
