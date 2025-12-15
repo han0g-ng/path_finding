@@ -129,9 +129,34 @@ class PathfindingVisualizer extends Component {
     
     const { customRows, customCols } = this.state;
     
-    // Validate dimensions (min 5x5, max 20x40)
-    const rows = Math.max(5, Math.min(20, customRows));
-    const cols = Math.max(5, Math.min(40, customCols));
+    // Parse and validate input values
+    const rowsValue = parseInt(customRows, 10);
+    const colsValue = parseInt(customCols, 10);
+    
+    // Check if inputs are valid numbers
+    if (isNaN(rowsValue) || isNaN(colsValue)) {
+      alert('Please enter valid numbers for rows and columns.');
+      // Reset input to current grid size
+      this.setState({
+        customRows: this.state.numRows,
+        customCols: this.state.numColumns,
+      });
+      return;
+    }
+    
+    // Check if values are within valid range (min 5, max 20 for rows, max 40 for cols)
+    if (rowsValue < 5 || rowsValue > 20 || colsValue < 5 || colsValue > 40) {
+      alert(`Grid size must be:\n- Rows: 5-20\n- Columns: 5-40\n\nYour input: ${rowsValue} × ${colsValue}`);
+      // Reset input to current grid size
+      this.setState({
+        customRows: this.state.numRows,
+        customCols: this.state.numColumns,
+      });
+      return;
+    }
+    
+    const rows = rowsValue;
+    const cols = colsValue;
     
     // Calculate optimal cell size to fit the screen
     // Reserve space for navbar (~130px top) and some padding (20px)
@@ -165,13 +190,15 @@ class PathfindingVisualizer extends Component {
   };
 
   updateCustomRows = (value) => {
-    const rows = parseInt(value) || 5;
-    this.setState({ customRows: Math.max(5, Math.min(20, rows)) });
+    // Allow empty string or any value for flexible input
+    // Validation will happen on apply
+    this.setState({ customRows: value });
   };
 
   updateCustomCols = (value) => {
-    const cols = parseInt(value) || 5;
-    this.setState({ customCols: Math.max(5, Math.min(40, cols)) });
+    // Allow empty string or any value for flexible input
+    // Validation will happen on apply
+    this.setState({ customCols: value });
   };
 
   toggleSkipAnimation = () => {

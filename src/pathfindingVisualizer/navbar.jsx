@@ -549,27 +549,25 @@ class NavBar extends Component {
                   <div className="d-flex align-items-center mb-2">
                     <label className="text-white me-2" style={{fontSize: '0.8rem', width: '45px'}}>Rows:</label>
                     <input
-                      type="number"
+                      type="text"
                       className="form-control form-control-sm"
-                      min="5"
-                      max="20"
                       value={this.props.customRows}
                       onChange={(e) => this.props.updateCustomRows(e.target.value)}
                       disabled={this.props.visualizingAlgorithm || this.props.generatingMaze}
                       style={{width: '70px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.3)'}}
+                      placeholder="5-20"
                     />
                   </div>
                   <div className="d-flex align-items-center mb-2">
                     <label className="text-white me-2" style={{fontSize: '0.8rem', width: '45px'}}>Cols:</label>
                     <input
-                      type="number"
+                      type="text"
                       className="form-control form-control-sm"
-                      min="5"
-                      max="40"
                       value={this.props.customCols}
                       onChange={(e) => this.props.updateCustomCols(e.target.value)}
                       disabled={this.props.visualizingAlgorithm || this.props.generatingMaze}
                       style={{width: '70px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.3)'}}
+                      placeholder="5-40"
                     />
                   </div>
                   <div className="text-white mb-2" style={{fontSize: '0.7rem', opacity: 0.6, fontStyle: 'italic'}}>
