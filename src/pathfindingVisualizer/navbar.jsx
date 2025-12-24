@@ -106,7 +106,7 @@ class NavBar extends Component {
         this.props.visualizeDijkstra();
       else if (this.state.algorithm === "A*")
         this.props.visualizeAStar(metricType, weight);
-      else if (this.state.algorithm === "Greedy BFS")
+      else if (this.state.algorithm === "Greedy Best First Search")
         this.props.visualizeGreedyBFS(metricType, weight);
       else if (this.state.algorithm === "Bidirectional Greedy")
         this.props.visualizeBidirectionalGreedySearch(metricType, weight);
@@ -269,7 +269,7 @@ class NavBar extends Component {
                   <li><button
                     className="dropdown-item"
                     type="button"
-                    onClick={() => {this.selectAlgorithm("Greedy BFS"); this.toggleDropdown('');}}
+                    onClick={() => {this.selectAlgorithm("Greedy Best First Search"); this.toggleDropdown('');}}
                   >
                     Greedy Best First Search
                   </button></li>
@@ -446,7 +446,7 @@ class NavBar extends Component {
                   type="range"
                   className="form-range me-2"
                   min="0"
-                  max="1"
+                  max="10"
                   step="0.1"
                   value={this.state.heuristicWeight}
                   onChange={this.updateWeight}
