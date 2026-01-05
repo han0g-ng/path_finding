@@ -1,3 +1,4 @@
+import TinyQueue from 'tinyqueue';
 import { getHeuristicFunction, METRIC_TYPES } from './metricSpace/index.js';
 
 export function greedyBFS(grid, startNode, finishNode, metricType = METRIC_TYPES.MANHATTAN, weight = 1) {
@@ -7,16 +8,23 @@ export function greedyBFS(grid, startNode, finishNode, metricType = METRIC_TYPES
   
   const heuristic = getHeuristicFunction(metricType, weight);
   
-  let unvisitedNodes = []; //open list
   let visitedNodesInOrder = []; //closed list
   let maxMemoryUsage = 0; // Track memory usage
   
   startNode.distance = 0;
-  unvisitedNodes.push(startNode);
+  startNode.totalDistance = heuristic(startNode, finishNode);
+  
+  // Use TinyQueue as priority queue for O(log N) operations
+  const compare = (a, b) => a.totalDistance - b.totalDistance;
+  let openList = new TinyQueue([startNode], compare);
+  maxMemoryUsage = openList.length;
 
-  while (unvisitedNodes.length !== 0) {
-    unvisitedNodes.sort((a, b) => a.totalDistance - b.totalDistance);
-    let closestNode = unvisitedNodes.shift();
+  while (openList.length > 0) {
+    let closestNode = openList.pop();
+    
+    // Skip if already visited (allows duplicates in queue)
+    if (closestNode.isVisited) continue;
+    
     if (closestNode === finishNode) {
       visitedNodesInOrder.maxMemoryUsage = maxMemoryUsage;
       return visitedNodesInOrder;
@@ -29,20 +37,16 @@ export function greedyBFS(grid, startNode, finishNode, metricType = METRIC_TYPES
     for (let neighbour of neighbours) {
       let distance = closestNode.distance + 1;
       //f(n) = h(n)
-      if (neighbourNotInUnvisitedNodes(neighbour, unvisitedNodes)) {
-        unvisitedNodes.unshift(neighbour);
+      if (distance < neighbour.distance) {
         neighbour.distance = distance;
         neighbour.totalDistance = heuristic(neighbour, finishNode);
         neighbour.previousNode = closestNode;
-      } else if (distance < neighbour.distance) {
-        neighbour.distance = distance;
-        neighbour.totalDistance = heuristic(neighbour, finishNode);
-        neighbour.previousNode = closestNode;
+        openList.push(neighbour);
       }
     }
     
-    // Track memory: open list + closed list
-    maxMemoryUsage = Math.max(maxMemoryUsage, unvisitedNodes.length);
+    // Track memory: priority queue size
+    maxMemoryUsage = Math.max(maxMemoryUsage, openList.length);
   }
   
   visitedNodesInOrder.maxMemoryUsage = maxMemoryUsage;
@@ -59,15 +63,6 @@ function getNeighbours(node, grid) {
   return neighbours.filter(
     (neighbour) => !neighbour.isWall && !neighbour.isVisited
   );
-}
-
-function neighbourNotInUnvisitedNodes(neighbour, unvisitedNodes) {
-  for (let node of unvisitedNodes) {
-    if (node.row === neighbour.row && node.col === neighbour.col) {
-      return false;
-    }
-  }
-  return true;
 }
 
 export function getNodesInShortestPathOrderGreedyBFS(finishNode) {

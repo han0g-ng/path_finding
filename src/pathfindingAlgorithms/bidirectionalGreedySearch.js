@@ -1,3 +1,4 @@
+import TinyQueue from 'tinyqueue';
 import { getHeuristicFunction, METRIC_TYPES } from './metricSpace/index.js';
 
 export function bidirectionalGreedySearch(grid, startNode, finishNode, metricType = METRIC_TYPES.MANHATTAN, weight = 1) {
@@ -7,30 +8,38 @@ export function bidirectionalGreedySearch(grid, startNode, finishNode, metricTyp
   
   const heuristic = getHeuristicFunction(metricType, weight);
   
-  let unvisitedNodesStart = [];
   let visitedNodesInOrderStart = [];
-  let unvisitedNodesFinish = [];
   let visitedNodesInOrderFinish = [];
   let maxMemoryUsage = 0; // Track memory usage
   
   startNode.distance = 0;
   finishNode.distance = 0;
-  unvisitedNodesStart.push(startNode);
-  unvisitedNodesFinish.push(finishNode);
+  startNode.totalDistance = heuristic(startNode, finishNode);
+  finishNode.totalDistance = heuristic(finishNode, startNode);
+  
+  // Use TinyQueue as priority queue for O(log N) operations
+  const compare = (a, b) => a.totalDistance - b.totalDistance;
+  let openListStart = new TinyQueue([startNode], compare);
+  let openListFinish = new TinyQueue([finishNode], compare);
+  maxMemoryUsage = openListStart.length + openListFinish.length;
 
-  while (
-    unvisitedNodesStart.length !== 0 &&
-    unvisitedNodesFinish.length !== 0
-  ) {
-    unvisitedNodesStart.sort((a, b) => a.totalDistance - b.totalDistance);
-    unvisitedNodesFinish.sort((a, b) => a.totalDistance - b.totalDistance);
-    let closestNodeStart = unvisitedNodesStart.shift();
-    let closestNodeFinish = unvisitedNodesFinish.shift();
-
-    closestNodeStart.isVisited = true;
-    closestNodeFinish.isVisited = true;
-    visitedNodesInOrderStart.push(closestNodeStart);
-    visitedNodesInOrderFinish.push(closestNodeFinish);
+  while (openListStart.length > 0 && openListFinish.length > 0) {
+    let closestNodeStart = openListStart.pop();
+    let closestNodeFinish = openListFinish.pop();
+    
+    // Skip if already visited
+    if (closestNodeStart.isVisited && closestNodeFinish.isVisited) continue;
+    
+    if (!closestNodeStart.isVisited) {
+      closestNodeStart.isVisited = true;
+      visitedNodesInOrderStart.push(closestNodeStart);
+    }
+    
+    if (!closestNodeFinish.isVisited) {
+      closestNodeFinish.isVisited = true;
+      visitedNodesInOrderFinish.push(closestNodeFinish);
+    }
+    
     if (isNeighbour(closestNodeStart, closestNodeFinish)) {
       // Mark intersection nodes
       closestNodeStart.isIntersection = true;
@@ -40,57 +49,52 @@ export function bidirectionalGreedySearch(grid, startNode, finishNode, metricTyp
     }
 
     //Start side search
-    let neighbours = getNeighbours(closestNodeStart, grid);
-    for (let neighbour of neighbours) {
-      if (!neighbourNotInUnvisitedNodes(neighbour, unvisitedNodesFinish)) {
-        // Mark intersection node
-        neighbour.isIntersection = true;
-        visitedNodesInOrderStart.push(closestNodeStart);
-        visitedNodesInOrderFinish.push(neighbour);
-        visitedNodesInOrderStart.maxMemoryUsage = maxMemoryUsage;
-        return [visitedNodesInOrderStart, visitedNodesInOrderFinish, true];
-      }
-      let distance = closestNodeStart.distance + 1;
-      //f(n) = h(n)
-      if (neighbourNotInUnvisitedNodes(neighbour, unvisitedNodesStart)) {
-        unvisitedNodesStart.unshift(neighbour);
-        neighbour.distance = distance;
-        neighbour.totalDistance = heuristic(neighbour, finishNode);
-        neighbour.previousNode = closestNodeStart;
-      } else if (distance < neighbour.distance) {
-        neighbour.distance = distance;
-        neighbour.totalDistance = heuristic(neighbour, finishNode);
-        neighbour.previousNode = closestNodeStart;
+    if (!closestNodeStart.wasProcessed) {
+      closestNodeStart.wasProcessed = true;
+      let neighbours = getNeighbours(closestNodeStart, grid);
+      for (let neighbour of neighbours) {
+        if (neighbour.isVisited && visitedNodesInOrderFinish.includes(neighbour)) {
+          // Mark intersection node
+          neighbour.isIntersection = true;
+          visitedNodesInOrderStart.maxMemoryUsage = maxMemoryUsage;
+          return [visitedNodesInOrderStart, visitedNodesInOrderFinish, true];
+        }
+        let distance = closestNodeStart.distance + 1;
+        //f(n) = h(n)
+        if (distance < neighbour.distance) {
+          neighbour.distance = distance;
+          neighbour.totalDistance = heuristic(neighbour, finishNode);
+          neighbour.previousNode = closestNodeStart;
+          openListStart.push(neighbour);
+        }
       }
     }
 
     //Finish side search
-    neighbours = getNeighbours(closestNodeFinish, grid);
-    for (let neighbour of neighbours) {
-      if (!neighbourNotInUnvisitedNodes(neighbour, unvisitedNodesStart)) {
-        // Mark intersection node
-        neighbour.isIntersection = true;
-        visitedNodesInOrderStart.push(neighbour);
-        visitedNodesInOrderStart.maxMemoryUsage = maxMemoryUsage;
-        return [visitedNodesInOrderStart, visitedNodesInOrderFinish, true];
-      }
-      let distance = closestNodeFinish.distance + 1;
-      //f(n) = h(n)
-      if (neighbourNotInUnvisitedNodes(neighbour, unvisitedNodesFinish)) {
-        unvisitedNodesFinish.unshift(neighbour);
-        neighbour.distance = distance;
-        neighbour.totalDistance = heuristic(neighbour, startNode);
-        neighbour.previousNode = closestNodeFinish;
-      } else if (distance < neighbour.distance) {
-        neighbour.distance = distance;
-        neighbour.totalDistance = heuristic(neighbour, startNode);
-        neighbour.previousNode = closestNodeFinish;
+    if (!closestNodeFinish.wasProcessed) {
+      closestNodeFinish.wasProcessed = true;
+      let neighbours = getNeighbours(closestNodeFinish, grid);
+      for (let neighbour of neighbours) {
+        if (neighbour.isVisited && visitedNodesInOrderStart.includes(neighbour)) {
+          // Mark intersection node
+          neighbour.isIntersection = true;
+          visitedNodesInOrderStart.maxMemoryUsage = maxMemoryUsage;
+          return [visitedNodesInOrderStart, visitedNodesInOrderFinish, true];
+        }
+        let distance = closestNodeFinish.distance + 1;
+        //f(n) = h(n)
+        if (distance < neighbour.distance) {
+          neighbour.distance = distance;
+          neighbour.totalDistance = heuristic(neighbour, startNode);
+          neighbour.previousNode = closestNodeFinish;
+          openListFinish.push(neighbour);
+        }
       }
     }
     
-    // Track memory: both queues + both visited lists
+    // Track memory: both queues
     maxMemoryUsage = Math.max(maxMemoryUsage, 
-      unvisitedNodesStart.length + unvisitedNodesFinish.length);
+      openListStart.length + openListFinish.length);
   }
   
   visitedNodesInOrderStart.maxMemoryUsage = maxMemoryUsage;
@@ -119,15 +123,6 @@ function getNeighbours(node, grid) {
   return neighbours.filter(
     (neighbour) => !neighbour.isWall && !neighbour.isVisited
   );
-}
-
-function neighbourNotInUnvisitedNodes(neighbour, unvisitedNodes) {
-  for (let node of unvisitedNodes) {
-    if (node.row === neighbour.row && node.col === neighbour.col) {
-      return false;
-    }
-  }
-  return true;
 }
 
 export function getNodesInShortestPathOrderBidirectionalGreedySearch(
