@@ -859,8 +859,8 @@ class PathfindingVisualizer extends Component {
       const visitedNodesInOrderFinish = visitedNodesInOrder[1];
       const isShortedPath = visitedNodesInOrder[2];
       const nodesInShortestPathOrder = getNodesInShortestPathOrderBidirectionalGreedySearch(
-        visitedNodesInOrderStart[visitedNodesInOrderStart.length - 1],
-        visitedNodesInOrderFinish[visitedNodesInOrderFinish.length - 1]
+        visitedNodesInOrderStart,
+        visitedNodesInOrderFinish
       );
       // Use actual memory usage tracked in algorithm
       this.bidirectionalMaxMemoryUsage = visitedNodesInOrderStart.maxMemoryUsage || 0;
