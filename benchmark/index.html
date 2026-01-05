@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathfinding Algorithms Benchmark</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #runBenchmark {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .download-btn {
+            background: #10b981;
+            color: white;
+        }
+        
+        #progress {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #progress p {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        #results {
+            margin-top: 20px;
+        }
+        
+        .summary-stats {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .summary-stats p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        h2, h3 {
+            color: #333;
+            margin: 20px 0 15px 0;
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box h4 {
+            margin: 0 0 10px 0;
+            color: #856404;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+        }
+        
+        .info-box li {
+            margin: 5px 0;
+            color: #856404;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Pathfinding Algorithms Benchmark</h1>
+        <p class="subtitle">Comprehensive Performance Analysis Tool</p>
+        
+        <div class="info-box">
+            <h4>📋 Test Configuration</h4>
+            <ul>
+                <li><strong>Grid Size:</strong> 25 rows × 50 columns</li>
+                <li><strong>Map Types:</strong> Random, Horizontal, Vertical, Recursive Division</li>
+                <li><strong>Maps per Type:</strong> 5 maps each (Total: 20 maps)</li>
+                <li><strong>Algorithms Tested:</strong> Dijkstra, BFS, DFS, A* (6 variations), Greedy BFS (2 variations), Bidirectional Greedy (2 variations)</li>
+                <li><strong>A* Weights:</strong> 0.5, 1.0, 2.0</li>
+                <li><strong>Metrics:</strong> Manhattan, Euclidean</li>
+                <li><strong>Total Tests:</strong> ~280 algorithm runs</li>
+            </ul>
+        </div>
+        
+        <div class="controls">
+            <button id="runBenchmark">🚀 Run Benchmark</button>
+            <button id="downloadResults" class="download-btn" disabled>📥 Download Full Results (CSV)</button>
+            <button id="downloadSummary" class="download-btn" disabled>📊 Download Summary (CSV)</button>
+            <button id="downloadComparison" class="download-btn" disabled>🔬 Download A* Comparison (CSV)</button>
+        </div>
+        
+        <div id="progress">
+            <p>Click "Run Benchmark" to start testing...</p>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+    
+    <script type="module" src="index.js"></script>
+</body>
+</html>

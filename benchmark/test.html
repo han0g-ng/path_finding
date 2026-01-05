@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Test - Benchmark</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #252526;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        h1 {
+            color: #4ec9b0;
+            border-bottom: 2px solid #4ec9b0;
+            padding-bottom: 10px;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        #output {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            min-height: 300px;
+        }
+        .success {
+            color: #4ec9b0;
+        }
+        .error {
+            color: #f48771;
+        }
+        .info {
+            color: #569cd6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Quick Test - Pathfinding Benchmark</h1>
+        <p>This will run a quick test on a small 10×20 grid to verify the benchmark system works correctly.</p>
+        
+        <button onclick="runTest()">▶️ Run Quick Test</button>
+        
+        <div id="output">Click the button to start testing...</div>
+    </div>
+    
+    <script type="module">
+        import { createGrid, applyWalls, getStartFinishNodes, resetGrid, getPathLength } from './gridUtils.js';
+        import { randomMaze } from '../pathding-visualizer/src/mazeAlgorithms/randomMaze.js';
+        import { dijkstra } from '../pathding-visualizer/src/pathfindingAlgorithms/dijkstra.js';
+        import { astar } from '../pathding-visualizer/src/pathfindingAlgorithms/astar.js';
+        import { METRIC_TYPES } from '../pathding-visualizer/src/pathfindingAlgorithms/metricSpace/index.js';
+
+        window.runTest = async function() {
+            const output = document.getElementById('output');
+            output.innerHTML = '<span class="info">🧪 Running quick test...</span>\n\n';
+            
+            try {
+                // Create a small grid
+                const grid = createGrid(10, 20);
+                const { startNode, finishNode } = getStartFinishNodes(grid, 10, 20);
+
+                // Generate a random maze
+                const walls = randomMaze(grid, startNode, finishNode);
+                applyWalls(grid, walls);
+
+                output.innerHTML += `<span class="success">✓</span> Created 10×20 grid with ${walls.length} walls\n`;
+                output.innerHTML += `  Start: (${startNode.row}, ${startNode.col})\n`;
+                output.innerHTML += `  Finish: (${finishNode.row}, ${finishNode.col})\n\n`;
+
+                // Test Dijkstra
+                output.innerHTML += '<span class="info">Testing Dijkstra...</span>\n';
+                resetGrid(grid);
+                const start1 = performance.now();
+                const dijkstraResult = dijkstra(grid, startNode, finishNode);
+                const time1 = performance.now() - start1;
+
+                if (dijkstraResult && finishNode.previousNode) {
+                    const pathLength = getPathLength(finishNode);
+                    output.innerHTML += `<span class="success">✓</span> Dijkstra found path\n`;
+                    output.innerHTML += `  Path length: ${pathLength}\n`;
+                    output.innerHTML += `  Nodes visited: ${dijkstraResult.length}\n`;
+                    output.innerHTML += `  Memory usage: ${dijkstraResult.maxMemoryUsage}\n`;
+                    output.innerHTML += `  Time: ${time1.toFixed(3)}ms\n\n`;
+                } else {
+                    output.innerHTML += '<span class="error">✗</span> Dijkstra failed - no path found\n\n';
+                }
+
+                // Test A*
+                output.innerHTML += '<span class="info">Testing A* (Manhattan, w=1)...</span>\n';
+                resetGrid(grid);
+                const start2 = performance.now();
+                const astarResult = astar(grid, startNode, finishNode, METRIC_TYPES.MANHATTAN, 1);
+                const time2 = performance.now() - start2;
+
+                if (astarResult && finishNode.previousNode) {
+                    const pathLength = getPathLength(finishNode);
+                    output.innerHTML += `<span class="success">✓</span> A* found path\n`;
+                    output.innerHTML += `  Path length: ${pathLength}\n`;
+                    output.innerHTML += `  Nodes visited: ${astarResult.length}\n`;
+                    output.innerHTML += `  Memory usage: ${astarResult.maxMemoryUsage}\n`;
+                    output.innerHTML += `  Time: ${time2.toFixed(3)}ms\n\n`;
+                } else {
+                    output.innerHTML += '<span class="error">✗</span> A* failed - no path found\n\n';
+                }
+
+                output.innerHTML += '<span class="success">✅ Quick test completed!</span>\n\n';
+                output.innerHTML += 'If both algorithms found paths, everything is working correctly.\n';
+                output.innerHTML += 'You can now run the full benchmark using <strong>index.html</strong>\n';
+
+            } catch (error) {
+                output.innerHTML += `\n<span class="error">❌ Error: ${error.message}</span>\n`;
+                output.innerHTML += `<span class="error">${error.stack}</span>\n`;
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
